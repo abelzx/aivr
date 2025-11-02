@@ -4,10 +4,16 @@ import { v4 as uuidv4 } from "uuid";
 
 // Create temp directory if it doesn't exist
 const TEMP_DIR = path.join(process.cwd(), "temp");
+const DOWNLOADS_DIR = path.join(process.cwd(), "temp", "downloads");
 
 // Ensure temp directory exists
 if (!fs.existsSync(TEMP_DIR)) {
   fs.mkdirSync(TEMP_DIR, { recursive: true });
+}
+
+// Ensure downloads directory exists
+if (!fs.existsSync(DOWNLOADS_DIR)) {
+  fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 }
 
 /**
@@ -143,5 +149,50 @@ export function extractFilenameFromMediaUrl(url: string): string | null {
     console.error('Error extracting filename from URL:', error);
     return null;
   }
+}
+
+/**
+ * Download a file from a URL and save it to /temp/downloads
+ * @param url - The URL to download from
+ * @param filename - Optional filename, otherwise a UUID will be generated
+ * @returns The path to the downloaded file
+ */
+export async function downloadFile(url: string, filename?: string): Promise<string> {
+  try {
+    // Fetch the file
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download file: ${response.statusText}`);
+    }
+
+    // Get content type from response headers
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    const fileExtension = getExtensionFromContentType(contentType);
+    
+    // Generate filename if not provided
+    const finalFilename = filename || `${uuidv4()}${fileExtension}`;
+    const safeFilename = path.basename(finalFilename);
+    
+    const filePath = path.join(DOWNLOADS_DIR, safeFilename);
+    
+    // Convert response to buffer and save
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    await fs.promises.writeFile(filePath, buffer);
+    
+    console.log(`Downloaded file to: ${filePath}`);
+    return filePath;
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get the file path for a downloaded file
+ */
+export function getDownloadFilePath(filename: string): string {
+  const safeFilename = path.basename(filename);
+  return path.join(DOWNLOADS_DIR, safeFilename);
 }
 
