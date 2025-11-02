@@ -9,7 +9,9 @@ services:
       # platform: linux/amd64  # For Intel/AMD
       # platform: linux/arm64  # For Apple Silicon / ARM
     ports:
-      - "3000:3000"
+      - "3001:3001"
+    env_file:
+      - .env
     environment:
       # OpenAI Configuration (Option 1: Direct OpenAI)
       # OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -36,13 +38,13 @@ services:
       QSTASH_TOKEN: ${QSTASH_TOKEN}
       
       # Base URL Configuration
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
-      BASE_URL: ${BASE_URL:-http://localhost:3000}
-      PORT: ${PORT:-3000}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3001}
+      BASE_URL: ${BASE_URL:-http://localhost:3001}
+      PORT: ${PORT:-3001}
       NODE_ENV: production
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000 || exit 1"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
