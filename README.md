@@ -93,18 +93,24 @@ The Dockerfile automatically detects your platform and builds accordingly. For A
 1. Create a `.env` file in the root directory with all required environment variables.
 
 2. Build and run the container:
-```bash
-docker-compose up --build
-```
+
+   **Interactive mode** (see logs in terminal):
+   ```bash
+   docker-compose up --build
+   ```
+
+   **Detached mode** (run in background):
+   ```bash
+   docker-compose up --build -d
+   ```
+   Or:
+   ```bash
+   docker-compose up -d --build
+   ```
 
    **Note for Windows users**: Use PowerShell or Command Prompt. If using Git Bash, prefix commands with `winpty` or use `docker-compose.exe`.
 
 3. The application will be available at `http://localhost:3000`.
-
-4. To run in detached mode (background):
-```bash
-docker-compose up -d --build
-```
 
 5. To stop the container:
 ```bash
