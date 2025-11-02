@@ -2,8 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import Jimp from "jimp";
 import { Configuration, OpenAIApi } from "openai";
-import { supabase } from "./_supabase";
-import { v4 as uuidv4 } from "uuid";
+import { saveFile } from "../../utils/storage";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,13 +24,58 @@ export default async function handler(
     const prompt = query.prompt as string;
     console.log(`Generating image for prompt: ${prompt}`);
 
-    const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
-    const openai = new OpenAIApi(config);
-    const image_response = await openai.createImage({
-      prompt,
-      n: 1,
-      size: "512x512",
-    });
+    // Auto-detect which API to use based on available API keys
+    const useAzure = !!process.env.AZURE_OPENAI_API_KEY;
+    const useOpenAI = !!process.env.OPENAI_API_KEY;
+
+    if (!useAzure && !useOpenAI) {
+      return res.status(500).json({ error: "No API key configured. Please set either OPENAI_API_KEY or AZURE_OPENAI_API_KEY" });
+    }
+
+    let config: Configuration;
+    let image_response: any;
+
+    if (useOpenAI) {
+      // Use OpenAI directly
+      config = new Configuration({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+      const openai = new OpenAIApi(config);
+      image_response = await openai.createImage({
+        prompt,
+        n: 1,
+        size: "512x512",
+      });
+    } else {
+      // Use Azure OpenAI
+      config = new Configuration({
+        apiKey: process.env.AZURE_OPENAI_API_KEY,
+        basePath: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT_NAME}`,
+        baseOptions: {
+          headers: {
+            "api-key": process.env.AZURE_OPENAI_API_KEY,
+          },
+        },
+      });
+      const openai = new OpenAIApi(config);
+      const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-02-15-preview";
+      // For Azure OpenAI, append API version as query parameter
+      image_response = await openai.createImage(
+        {
+          prompt,
+          n: 1,
+          size: "512x512",
+        },
+        {
+          headers: {
+            "api-key": process.env.AZURE_OPENAI_API_KEY,
+          },
+          params: {
+            "api-version": apiVersion,
+          },
+        } as any
+      );
+    }
 
     const dataURL = image_response.data.data[0].url;
     console.log("Image generation url", dataURL);
@@ -49,30 +93,14 @@ export default async function handler(
         return res.status(500).json({ message: "Error getting image" });
       } else {
         console.log("Returning masked image");
-        res.setHeader("Content-Type", Jimp.MIME_PNG);
-        res.status(200);
-
-        const { data, error } = await supabase.storage
-          .from(process.env.SUPABASE_STORAGE_BUCKET)
-          .upload(`public/${uuidv4()}.png`, masked_image_buffer, {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: Jimp.MIME_PNG,
-          });
-
-        if (error) {
+        try {
+          const end_image_url = await saveFile(masked_image_buffer, Jimp.MIME_PNG);
+          console.log(`Redirecting user to ${end_image_url}`);
+          return res.redirect(end_image_url);
+        } catch (error) {
           console.log("Error uploading file", error);
           return res.status(500).json({ error });
         }
-
-        console.log("Upload result", data);
-        const end_image_url = `${
-          process.env.SUPABASE_PROJECT_URL
-        }/storage/v1/object/public/${process.env.SUPABASE_STORAGE_BUCKET}/${
-          data.path
-        }?rand=${uuidv4()}`;
-        console.log(`Redirecting user to ${end_image_url}`);
-        return res.redirect(end_image_url);
       }
     });
   } catch (error) {

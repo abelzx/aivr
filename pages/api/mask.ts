@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Jimp from "jimp";
-import OpenAI from "openai";
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,7 +8,7 @@ export default async function handler(
 ) {
   const { body } = req;
   try {
-    const image_mask = await Jimp.read("https://images-5674.twil.io/mask.png");
+    const image_mask = await Jimp.read("https://sepia-loris-2302.twil.io/assets/twilio_mask.png");
     const image_target = await Jimp.read(
       "https://images-5674.twil.io/example.jpeg"
     );

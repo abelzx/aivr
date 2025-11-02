@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # OpenAI Configuration (Option 1: Direct OpenAI)
+      # OPENAI_API_KEY: ${OPENAI_API_KEY}
+      
+      # Azure OpenAI Configuration (Option 2: Azure OpenAI)
+      # AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY}
+      # AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT}
+      # AZURE_OPENAI_DEPLOYMENT_NAME: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+      # AZURE_OPENAI_API_VERSION: ${AZURE_OPENAI_API_VERSION:-2024-02-15-preview}
+      
+      # Twilio Configuration
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_WHATSAPP_FROM_NUMBER: ${TWILIO_WHATSAPP_FROM_NUMBER}
+      
+      # API Security
+      API_KEY: ${API_KEY}
+      
+      # Supabase Configuration
+      SUPABASE_PROJECT_URL: ${SUPABASE_PROJECT_URL}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY}
+      
+      # Upstash QStash
+      QSTASH_TOKEN: ${QSTASH_TOKEN}
+      
+      # Base URL Configuration
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      BASE_URL: ${BASE_URL:-http://localhost:3000}
+      PORT: ${PORT:-3000}
+      NODE_ENV: production
+    restart: unless-stopped
+
