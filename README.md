@@ -38,6 +38,9 @@ This project can be run using Docker for easier deployment and consistent enviro
 ### Prerequisites
 
 - Docker and Docker Compose installed on your system
+  - **macOS**: Install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/) (works on both Intel and Apple Silicon)
+  - **Linux**: Install [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+  - **Windows**: Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) (requires WSL 2)
 - All required environment variables configured
 
 ### Required Environment Variables
@@ -76,6 +79,15 @@ Create a `.env` file in the root directory with the following variables:
 - `PORT`: Port number (defaults to `3000`)
 - `NGROK_URL`: Ngrok URL if using ngrok for webhooks
 
+### Platform-Specific Notes
+
+This Docker setup is fully cross-platform compatible and works on:
+- **macOS** (Intel and Apple Silicon/M1/M2/M3)
+- **Linux** (AMD64/x86_64 and ARM64)
+- **Windows** (using WSL 2)
+
+The Dockerfile automatically detects your platform and builds accordingly. For Apple Silicon Macs, Docker will automatically use ARM64 architecture. For Intel Macs and most Linux/Windows systems, it will use AMD64.
+
 ### Option 1: Using Docker Compose (Recommended)
 
 1. Create a `.env` file in the root directory with all required environment variables.
@@ -84,6 +96,8 @@ Create a `.env` file in the root directory with the following variables:
 ```bash
 docker-compose up --build
 ```
+
+   **Note for Windows users**: Use PowerShell or Command Prompt. If using Git Bash, prefix commands with `winpty` or use `docker-compose.exe`.
 
 3. The application will be available at `http://localhost:3000`.
 
@@ -97,6 +111,16 @@ docker-compose up -d --build
 docker-compose down
 ```
 
+#### Building for Specific Platforms
+
+If you need to build for a specific platform (e.g., building ARM64 on an Intel machine), edit `docker-compose.yml` and uncomment one of the platform options:
+
+```yaml
+platform: linux/amd64  # For Intel/AMD processors
+# or
+platform: linux/arm64  # For Apple Silicon / ARM processors
+```
+
 ### Option 2: Using Docker Directly
 
 1. Build the Docker image:
@@ -104,24 +128,49 @@ docker-compose down
 docker build -t aivr-app .
 ```
 
-2. Run the container with environment variables:
-```bash
-docker run -p 3000:3000 \
-  -e OPENAI_API_KEY=your_openai_key \
-  -e TWILIO_ACCOUNT_SID=your_twilio_sid \
-  -e TWILIO_AUTH_TOKEN=your_twilio_token \
-  -e TWILIO_WHATSAPP_FROM_NUMBER=your_whatsapp_number \
-  -e API_KEY=your_api_key \
-  -e SUPABASE_PROJECT_URL=your_supabase_url \
-  -e SUPABASE_SECRET_KEY=your_supabase_secret \
-  -e QSTASH_TOKEN=your_qstash_token \
-  aivr-app
-```
+   **Platform-specific builds:**
+   ```bash
+   # Build for AMD64 (Intel/AMD)
+   docker build --platform linux/amd64 -t aivr-app .
+   
+   # Build for ARM64 (Apple Silicon)
+   docker build --platform linux/arm64 -t aivr-app .
+   ```
 
-Or use an environment file:
-```bash
-docker run -p 3000:3000 --env-file .env aivr-app
-```
+2. Run the container with environment variables:
+
+   **macOS/Linux:**
+   ```bash
+   docker run -p 3000:3000 \
+     -e OPENAI_API_KEY=your_openai_key \
+     -e TWILIO_ACCOUNT_SID=your_twilio_sid \
+     -e TWILIO_AUTH_TOKEN=your_twilio_token \
+     -e TWILIO_WHATSAPP_FROM_NUMBER=your_whatsapp_number \
+     -e API_KEY=your_api_key \
+     -e SUPABASE_PROJECT_URL=your_supabase_url \
+     -e SUPABASE_SECRET_KEY=your_supabase_secret \
+     -e QSTASH_TOKEN=your_qstash_token \
+     aivr-app
+   ```
+
+   **Windows (PowerShell):**
+   ```powershell
+   docker run -p 3000:3000 `
+     -e OPENAI_API_KEY=your_openai_key `
+     -e TWILIO_ACCOUNT_SID=your_twilio_sid `
+     -e TWILIO_AUTH_TOKEN=your_twilio_token `
+     -e TWILIO_WHATSAPP_FROM_NUMBER=your_whatsapp_number `
+     -e API_KEY=your_api_key `
+     -e SUPABASE_PROJECT_URL=your_supabase_url `
+     -e SUPABASE_SECRET_KEY=your_supabase_secret `
+     -e QSTASH_TOKEN=your_qstash_token `
+     aivr-app
+   ```
+
+   Or use an environment file (works on all platforms):
+   ```bash
+   docker run -p 3000:3000 --env-file .env aivr-app
+   ```
 
 3. The application will be available at `http://localhost:3000`.
 

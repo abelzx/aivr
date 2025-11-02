@@ -10,10 +10,26 @@ README.md
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# macOS
 .DS_Store
-*.pem
+.AppleDouble
+.LSOverride
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN
+# Linux
+*~
+.directory
+# IDE
 .vscode
 .idea
+*.swp
+*.swo
+*.swn
+# Other
+*.pem
 coverage
 .temp
 temp
