@@ -512,7 +512,7 @@ export default async function handler(
           // Fallback to text message if template not configured
           await sendWhatsAppMessage(
             fromNumber,
-            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime\n2️⃣ Chibi\n3️⃣ Ghibli"
+            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)"
           );
         }
       } catch (error) {
