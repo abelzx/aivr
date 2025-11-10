@@ -419,6 +419,8 @@ export default async function handler(
             selectedStyle = 'Chibi Cartoon';
           } else if (normalizedMessage === '3' || normalizedMessage.includes('3️⃣')) {
             selectedStyle = 'Studio Ghibli';
+          } else if (normalizedMessage === '4' || normalizedMessage.includes('4️⃣')) {
+            selectedStyle = 'Western Cartoon';
           } 
           // Check for exact word matches (including button text from template)
           else if (normalizedMessage === 'anime') {
@@ -427,14 +429,18 @@ export default async function handler(
             selectedStyle = 'Chibi Cartoon';
           } else if (normalizedMessage === 'studio ghibli' || normalizedMessage === 'studioghibli' || normalizedMessage === 'ghibli') {
             selectedStyle = 'Studio Ghibli';
+          } else if (normalizedMessage === 'western cartoon' || normalizedMessage === 'westerncartoon' || normalizedMessage === 'comic') {
+            selectedStyle = 'Western Cartoon';
           }
           // Check for partial matches (in case user types "anime style" or similar)
-          else if (normalizedMessage.includes('anime') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('chibi')) {
+          else if (normalizedMessage.includes('anime') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('chibi') && !normalizedMessage.includes('comic') && !normalizedMessage.includes('cartoon')) {
             selectedStyle = 'Anime';
-          } else if (normalizedMessage.includes('chibi') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('anime')) {
+          } else if (normalizedMessage.includes('chibi') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('anime') && !normalizedMessage.includes('comic') && !normalizedMessage.includes('cartoon')) {
             selectedStyle = 'Chibi Cartoon';
-          } else if ((normalizedMessage.includes('hero') || normalizedMessage.includes('ghibli')) && !normalizedMessage.includes('anime') && !normalizedMessage.includes('chibi')) {
+          } else if ((normalizedMessage.includes('hero') || normalizedMessage.includes('ghibli')) && !normalizedMessage.includes('anime') && !normalizedMessage.includes('chibi') && !normalizedMessage.includes('comic') && !normalizedMessage.includes('cartoon')) {
             selectedStyle = 'Studio Ghibli';
+          } else if ((normalizedMessage.includes('comic') || normalizedMessage.includes('western') || normalizedMessage.includes('cartoon')) && !normalizedMessage.includes('anime') && !normalizedMessage.includes('chibi') && !normalizedMessage.includes('ghibli')) {
+            selectedStyle = 'Western Cartoon';
           }
           
           // Format prompt based on selected style or use message as-is
@@ -460,7 +466,7 @@ export default async function handler(
           // Fallback to text message if template not configured
           await sendWhatsAppMessage(
             fromNumber,
-            "Please choose a style:\n1️⃣ Anime\n2️⃣ Chibi\n3️⃣ Ghibli"
+            "Please choose a style:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)"
           );
         }
       }
@@ -512,7 +518,7 @@ export default async function handler(
           // Fallback to text message if template not configured
           await sendWhatsAppMessage(
             fromNumber,
-            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)"
+            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)"
           );
         }
       } catch (error) {
