@@ -539,7 +539,7 @@ export default async function handler(
       // First time user - greet them
       await sendWhatsAppMessage(
         fromNumber,
-        "👋 Hello! Welcome to Twilio AI Image Magic. You can:\n1. Send me a photo to transform it with a style!\n2. Send me a text description to generate an image~"
+        "👋 Hello! Welcome to Twilio AI Magic. You can:\n1. Send me a photo to transform it with a style!\n2. Send me a text description to generate an image~"
       );
       await sync.set(`whatsapp:${fromNumber}:greeted`, "true", { ex: 3600 }); // Expire after 1 hour
     } else {
