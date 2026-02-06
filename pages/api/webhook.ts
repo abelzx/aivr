@@ -143,7 +143,7 @@ const generateImageToImage = async (imagePath: string, stylePrompt: string, to: 
     }
 
     const img2imgDeployment = process.env.AZURE_OPENAI_IMG2IMG_DEPLOYMENT_NAME || "FLUX.1-Kontext-pro";
-    const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2025-04-01-preview";
+    const apiVersion = process.env.AZURE_OPENAI_IMG2IMG_API_VERSION || process.env.AZURE_OPENAI_API_VERSION || "2024-02-01";
     
     // Construct the endpoint URL following Azure AI Foundry pattern
     let endpoint = process.env.AZURE_OPENAI_ENDPOINT;
@@ -193,7 +193,7 @@ const generateImageToImage = async (imagePath: string, stylePrompt: string, to: 
     // Make the API call using axios
     const response = await axios.post(editUrl, formData, {
       headers: {
-        'Api-Key': process.env.AZURE_OPENAI_API_KEY,
+        'Authorization': `Bearer ${process.env.AZURE_OPENAI_API_KEY}`,
         ...formData.getHeaders(), // Important for FormData to set Content-Type with boundary
       },
     });
