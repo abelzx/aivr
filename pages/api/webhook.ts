@@ -423,6 +423,8 @@ export default async function handler(
             selectedStyle = 'Western Cartoon';
           } else if (normalizedMessage === '5' || normalizedMessage.includes('5️⃣')) {
             selectedStyle = 'Chinese Anime';
+          } else if (normalizedMessage === '6' || normalizedMessage.includes('6️⃣')) {
+            selectedStyle = 'Disney';
           } 
           // Check for exact word matches (including button text from template)
           else if (normalizedMessage === 'anime') {
@@ -435,9 +437,13 @@ export default async function handler(
             selectedStyle = 'Western Cartoon';
           } else if (normalizedMessage === 'chinese anime' || normalizedMessage === 'chineseanime' || normalizedMessage === 'donghua') {
             selectedStyle = 'Chinese Anime';
+          } else if (normalizedMessage === 'disney') {
+            selectedStyle = 'Disney';
           }
           // Check for partial matches (in case user types "anime style" or similar)
-          else if (normalizedMessage.includes('chinese') && normalizedMessage.includes('anime')) {
+          else if (normalizedMessage.includes('disney')) {
+            selectedStyle = 'Disney';
+          } else if (normalizedMessage.includes('chinese') && normalizedMessage.includes('anime')) {
             selectedStyle = 'Chinese Anime';
           } else if (normalizedMessage.includes('donghua')) {
             selectedStyle = 'Chinese Anime';
@@ -474,7 +480,7 @@ export default async function handler(
           // Fallback to text message if template not configured
           await sendWhatsAppMessage(
             fromNumber,
-            "Please choose a style:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)\n5️⃣ Chinese Anime (Donghua)"
+            "Please choose a style:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)\n5️⃣ Chinese Anime (Donghua)\n6️⃣ Disney (Classic animation)"
           );
         }
       }
@@ -526,7 +532,7 @@ export default async function handler(
           // Fallback to text message if template not configured
           await sendWhatsAppMessage(
             fromNumber,
-            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)\n5️⃣ Chinese Anime (Donghua)"
+            "Great! I received your photo. What style would you like me to apply to transform it? 🎨\n\nChoose one:\n1️⃣ Anime (Japanese animation)\n2️⃣ Chibi (Cute caricature)\n3️⃣ Ghibli (Hand-drawn artistry)\n4️⃣ Western cartoon (Comic)\n5️⃣ Chinese Anime (Donghua)\n6️⃣ Disney (Classic animation)"
           );
         }
       } catch (error) {
