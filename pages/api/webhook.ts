@@ -227,7 +227,10 @@ const generateImageToImage = async (imagePath: string, stylePrompt: string, to: 
     //
     // COMPOSITE IMAGE WITH MASK
     //
-    const image_mask = await Jimp.read("https://sepia-loris-2302.twil.io/assets/twilio_mask.png");
+    // Fetch mask image from URL first
+    const maskResponse = await fetch("https://sepia-loris-2302.twil.io/assets/twilio_mask.png");
+    const maskBuffer = Buffer.from(await maskResponse.arrayBuffer());
+    const image_mask = await Jimp.read(maskBuffer);
     generatedImage.blit(image_mask, 0, 0);
 
     generatedImage.getBuffer(Jimp.MIME_PNG, async (err: Error | null, transformed_image_buffer: Buffer) => {
@@ -310,13 +313,36 @@ const generateImage = async (prompt: string, to: string) => {
       size: "1024x1024",
     });
 
+    console.log('Image generation response:', JSON.stringify(image_response, null, 2));
+
     //
     // COMPOSITE IMAGE
     //
     const { saveFile } = await import("../../utils/storage");
 
-    const image_target = await Jimp.read(image_response.data[0].url);
-    const image_mask = await Jimp.read("https://sepia-loris-2302.twil.io/assets/twilio_mask.png");
+    // Handle both URL and base64 response formats
+    let imageBuffer: Buffer;
+    const responseData = image_response.data[0];
+    
+    if (responseData.url) {
+      // Standard OpenAI format with URL
+      console.log('Fetching image from URL:', responseData.url);
+      const imageResponse = await fetch(responseData.url);
+      imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+    } else if (responseData.b64_json) {
+      // Azure OpenAI format with base64
+      console.log('Using base64 image data');
+      imageBuffer = Buffer.from(responseData.b64_json, 'base64');
+    } else {
+      throw new Error('Unexpected response format: no URL or b64_json found');
+    }
+    
+    const image_target = await Jimp.read(imageBuffer);
+    
+    // Fetch mask image from URL first
+    const maskResponse = await fetch("https://sepia-loris-2302.twil.io/assets/twilio_mask.png");
+    const maskBuffer = Buffer.from(await maskResponse.arrayBuffer());
+    const image_mask = await Jimp.read(maskBuffer);
     image_target.blit(image_mask, 0, 0);
 
     image_target.getBuffer(Jimp.MIME_PNG, async (err: Error | null, masked_image_buffer: Buffer) => {
@@ -422,7 +448,7 @@ export default async function handler(
           } else if (normalizedMessage === '4' || normalizedMessage.includes('4️⃣')) {
             selectedStyle = 'Western Cartoon';
           } else if (normalizedMessage === '5' || normalizedMessage.includes('5️⃣')) {
-            selectedStyle = 'Chinese Anime';
+            selectedStyle = 'Traditional Chinese Anime';
           } else if (normalizedMessage === '6' || normalizedMessage.includes('6️⃣')) {
             selectedStyle = 'Disney';
           } 
@@ -436,7 +462,7 @@ export default async function handler(
           } else if (normalizedMessage === 'western cartoon' || normalizedMessage === 'westerncartoon' || normalizedMessage === 'comic') {
             selectedStyle = 'Western Cartoon';
           } else if (normalizedMessage === 'chinese anime' || normalizedMessage === 'chineseanime' || normalizedMessage === 'donghua') {
-            selectedStyle = 'Chinese Anime';
+            selectedStyle = 'Traditional Chinese Anime';
           } else if (normalizedMessage === 'disney') {
             selectedStyle = 'Disney';
           }
@@ -444,9 +470,9 @@ export default async function handler(
           else if (normalizedMessage.includes('disney')) {
             selectedStyle = 'Disney';
           } else if (normalizedMessage.includes('chinese') && normalizedMessage.includes('anime')) {
-            selectedStyle = 'Chinese Anime';
+            selectedStyle = 'Traditional Chinese Anime';
           } else if (normalizedMessage.includes('donghua')) {
-            selectedStyle = 'Chinese Anime';
+            selectedStyle = 'Traditional Chinese Anime';
           } else if (normalizedMessage.includes('anime') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('chibi') && !normalizedMessage.includes('comic') && !normalizedMessage.includes('cartoon') && !normalizedMessage.includes('chinese')) {
             selectedStyle = 'Anime';
           } else if (normalizedMessage.includes('chibi') && !normalizedMessage.includes('ghibli') && !normalizedMessage.includes('anime') && !normalizedMessage.includes('comic') && !normalizedMessage.includes('cartoon')) {

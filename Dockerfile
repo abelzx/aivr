@@ -6,7 +6,8 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Install dependencies (will regenerate package-lock.json if missing)
+RUN npm install
 
 # Stage 2: Builder
 FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
